@@ -18,6 +18,7 @@ export default class Products {
                     query {
                         getProducts {
                             data {
+                                products_id
                                 name
                                 category_1 {
                                     name
@@ -46,6 +47,58 @@ export default class Products {
         }
     }
 
+    static async getProduct(id: number) {
+        try {
+            const response = await api.post('', {
+                query: `
+                    query {
+                        getProduct(id: ${id}) {
+                            products_id
+                            name
+                            category_sub_level_1
+                            amount
+                            price
+                            cost_price
+                            desc
+                        }
+                    }
+                `,
+            });
+
+            const { data } = response.data;
+            return {
+                data: data?.getProduct,
+            };
+
+        } catch (error) {
+            enqueueSnackbar("Network error", { variant: "error" });
+            console.error("Error fetching product:", error);
+            return { data: {} };
+        }
+    }
+
+    static async getCategory1() {
+        try {
+            const response = await api.post('', {
+                query: `
+                    query {
+                        getCategory1 {
+                            name
+                        }
+                    }
+                `
+            });
+
+            const { data } = response.data;
+            return {
+                data: data?.getCategory1,
+            };
+        } catch (error) {
+            enqueueSnackbar("Network error", { variant: "error" });
+            return { data: [] };
+        }
+    }
+
     // async createProducts(product: any) {
     //     try {
 
@@ -54,22 +107,25 @@ export default class Products {
     //     }
     // }
 
-    static async deleteProducts() {
+    static async deleteProducts(name: string) {
         try {
-            await api.post('', {
+            const response = await api.post('', {
                 query: `
-                    mutation {
-                        deleteProducts(name: "Winter Jacket") {
-                            status
-                            message
-                        }
-                    }
-                `
+                                    mutation {
+                                        deleteProducts(name: "${name}") {
+                                            status
+                                            message
+                                        }
+                                    }
+                                `
             });
+            const { data } = response.data;
+            console.log(data.deleteProducts.message)
+            enqueueSnackbar(data?.deleteProducts?.message, { variant: "success" });
         } catch (error) {
             enqueueSnackbar("Network error", { variant: "error" });
+            console.error(error);
         }
     }
-
 
 }

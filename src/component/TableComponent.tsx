@@ -5,6 +5,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Typography,
 } from "@mui/material";
 import React from "react";
 
@@ -27,15 +28,23 @@ const TableComponent: React.FC<TableComponentProps> = ({ columns, list }) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {list?.map((r: any, i: number) => (
-            <TableRow key={i}>
-              {columns?.map((col: any, i: number) => (
-                <TableCell key={i} id={col?.id} align={col?.alignItem}>
-                  {col?.render(r, i)}
-                </TableCell>
-              ))}
+          {list && list.length > 0 ? (
+            list?.map((r: any, i: number) => (
+              <TableRow key={i}>
+                {columns?.map((col: any, i: number) => (
+                  <TableCell key={i} id={col?.id} align={col?.alignItem}>
+                    {col?.render(r, i)}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={columns?.length} align="center">
+                <Typography>No data available</Typography>
+              </TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
     </TableContainer>

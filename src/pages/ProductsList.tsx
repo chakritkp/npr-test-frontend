@@ -1,23 +1,42 @@
 import { Box, Button, Container, Stack, Typography } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import TableComponent from "../component/TableComponent";
 import Products from "../hook/useProducts";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import DialogConfirm from "../component/DialogConfirm";
+import { useNavigate } from "react-router-dom";
 
 type ProductsListProps = {};
 
 const ProductsList: React.FC<ProductsListProps> = () => {
+  const [openDialog, setOpenDialog] = useState<boolean>(false);
+  const [reload, setReload] = useState<boolean>(false);
   const [list, setList] = useState<any[]>([]);
+  const navigate = useNavigate();
+  const typesRef = useRef<any>({});
 
   const handleLoad = async () => {
     const resp = await Products.getProducts();
     setList(resp.data);
+    setReload(false);
+  };
+
+  const handleOpenDialog = async (data: any) => {
+    typesRef.current = data;
+    setOpenDialog(true);
+  };
+
+  const handleDelete = async (name: string) => {
+    await Products.deleteProducts(name);
+    setOpenDialog(false);
+    setReload(true);
   };
 
   useEffect(() => {
     handleLoad();
-  }, []);
+  }, [reload]);
 
   const columns = [
     {
@@ -69,10 +88,15 @@ const ProductsList: React.FC<ProductsListProps> = () => {
       render: (r: any) => (
         <Box>
           <Stack spacing={1} display={"flex"} direction={"row"} width={50}>
-            <Button size="small" variant="text" color="primary">
+            <Button size="small" variant="text" color="primary" onClick={() => navigate(`/form/${r?.products_id}`)}>
               <EditIcon />
             </Button>
-            <Button size="small" variant="text" color="error">
+            <Button
+              size="small"
+              variant="text"
+              color="error"
+              onClick={() => handleOpenDialog(r)}
+            >
               <DeleteIcon />
             </Button>
           </Stack>
@@ -80,10 +104,23 @@ const ProductsList: React.FC<ProductsListProps> = () => {
       ),
     },
   ];
+
   return (
-    <Container>
+    <Container component={"main"} maxWidth="md">
       <Typography variant="h4">Products list</Typography>
+      <Stack display={"flex"} alignItems={"end"}>
+        <Button variant="contained" onClick={() => navigate("/form")}>
+          <AddCircleIcon />
+        </Button>
+      </Stack>
       <TableComponent columns={columns} list={list} />
+      <DialogConfirm
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        onClick={() => handleDelete(typesRef.current?.name)}
+        title={"Are you sure"}
+        message={`Are you sure you want to delete this ${typesRef?.current?.type_name}?`}
+      />
     </Container>
   );
 };
