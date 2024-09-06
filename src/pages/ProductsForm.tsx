@@ -7,6 +7,7 @@ import {
   Button,
   Container,
   FormControl,
+  FormHelperText,
   Grid,
   InputLabel,
   MenuItem,
@@ -30,19 +31,20 @@ const schema = yup.object().shape({
     .number()
     .required("Field is required")
     .typeError("Must be a number")
-    .positive("Must be a positive number"),
+    .positive("Must be a positive number")
+    .moreThan(0, "Price must be greater than 0"),
   price: yup
     .number()
     .required("Field is required")
     .typeError("Must be a number")
     .positive("Must be a positive number")
-    .min(0, "Price cannot be negative"),
+    .moreThan(0, "Price must be greater than 0"),
   cost_price: yup
     .number()
     .required("Field is required")
     .typeError("Must be a number")
     .positive("Must be a positive number")
-    .min(0, "Price cannot be negative"),
+    .moreThan(0, "Price must be greater than 0"),
   desc: yup.string(),
 });
 
@@ -67,12 +69,12 @@ const ProductsForm: React.FC<ProductsFormProps> = () => {
     const res = await Products.getProduct(id);
 
     if (res.data) {
-      setValue("name", res.data.name);
-      setValue("category_sub_level_1", res.data.category_sub_level_1);
-      setValue("amount", res.data.amount);
-      setValue("price", res.data.price);
-      setValue("cost_price", res.data.cost_price);
-      setValue("desc", res.data.desc);
+      setValue("name", res?.data?.name);
+      setValue("category_sub_level_1", res?.data?.category_sub_level_1);
+      setValue("amount", res?.data?.amount);
+      setValue("price", res?.data?.price);
+      setValue("cost_price", res?.data?.cost_price);
+      setValue("desc", res?.data?.desc || "");
     }
   };
 
@@ -93,6 +95,7 @@ const ProductsForm: React.FC<ProductsFormProps> = () => {
   }, [reload]);
 
   const onSave = async (data: any) => {
+    console.log(data);
     if (id) {
       await Products.updateProduct(parseInt(id), data);
     } else {
@@ -153,14 +156,18 @@ const ProductsForm: React.FC<ProductsFormProps> = () => {
                     name="category_sub_level_1"
                     render={({ field }) => (
                       <FormControl fullWidth>
-                        <InputLabel>Category 1</InputLabel>
+                        <InputLabel id="demo-simple-select-helper-label">
+                          Category 1
+                        </InputLabel>
                         <Select
                           {...field}
+                          labelId="demo-simple-select-helper-label"
+                          id="demo-simple-select-helper"
                           fullWidth
                           size="small"
                           label="Category 1"
                           error={!!errors.category_sub_level_1}
-                          defaultValue="Men"
+                          value={field.value || ""}
                         >
                           {category1?.map((item: any, i: number) => (
                             <MenuItem key={i + 1} value={item?.name}>
@@ -168,6 +175,11 @@ const ProductsForm: React.FC<ProductsFormProps> = () => {
                             </MenuItem>
                           ))}
                         </Select>
+                        <FormHelperText sx={{color:'#c62828'}}>
+                          {errors.category_sub_level_1
+                            ? errors.category_sub_level_1.message
+                            : null}
+                        </FormHelperText>
                       </FormControl>
                     )}
                   />
@@ -183,7 +195,6 @@ const ProductsForm: React.FC<ProductsFormProps> = () => {
                   <Controller
                     control={control}
                     name="amount"
-                    defaultValue={0}
                     render={({ field }) => (
                       <TextField
                         {...field}
@@ -191,6 +202,16 @@ const ProductsForm: React.FC<ProductsFormProps> = () => {
                         type="number"
                         size="small"
                         label="Amount"
+                        onKeyDown={(e) => {
+                          if (["+", "-", "*", "/"].includes(e.key)) {
+                            e.preventDefault();
+                          }
+                        }}
+                        slotProps={{
+                          inputLabel: {
+                            shrink: true,
+                          },
+                        }}
                         error={!!errors.amount}
                         helperText={
                           errors.amount ? errors.amount.message : null
@@ -209,7 +230,6 @@ const ProductsForm: React.FC<ProductsFormProps> = () => {
                   <Controller
                     control={control}
                     name="price"
-                    defaultValue={0}
                     render={({ field }) => (
                       <TextField
                         {...field}
@@ -217,6 +237,16 @@ const ProductsForm: React.FC<ProductsFormProps> = () => {
                         type="number"
                         size="small"
                         label="Price"
+                        onKeyDown={(e) => {
+                          if (["+", "-", "*", "/"].includes(e.key)) {
+                            e.preventDefault();
+                          }
+                        }}
+                        slotProps={{
+                          inputLabel: {
+                            shrink: true,
+                          },
+                        }}
                         error={!!errors.price}
                         helperText={errors.price ? errors.price.message : null}
                       />
@@ -233,7 +263,6 @@ const ProductsForm: React.FC<ProductsFormProps> = () => {
                   <Controller
                     control={control}
                     name="cost_price"
-                    defaultValue={0}
                     render={({ field }) => (
                       <TextField
                         {...field}
@@ -241,6 +270,16 @@ const ProductsForm: React.FC<ProductsFormProps> = () => {
                         type="number"
                         size="small"
                         label="Cost price"
+                        onKeyDown={(e) => {
+                          if (["+", "-", "*", "/"].includes(e.key)) {
+                            e.preventDefault();
+                          }
+                        }}
+                        slotProps={{
+                          inputLabel: {
+                            shrink: true,
+                          },
+                        }}
                         error={!!errors.cost_price}
                         helperText={
                           errors.cost_price ? errors.cost_price.message : null
@@ -259,11 +298,16 @@ const ProductsForm: React.FC<ProductsFormProps> = () => {
                   <Controller
                     control={control}
                     name="desc"
+                    defaultValue=""
                     render={({ field }) => (
-                      <>
-                        <InputLabel>{"Description"}</InputLabel>
-                        <TextareaAutosize {...field} minRows={5} />
-                      </>
+                      <TextField
+                        {...field}
+                        fullWidth
+                        label="Description"
+                        multiline
+                        rows={5}
+                        variant="outlined"
+                      />
                     )}
                   />
                 </Stack>

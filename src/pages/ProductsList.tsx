@@ -117,7 +117,7 @@ const ProductsList: React.FC<ProductsListProps> = () => {
         onClose={() => setOpenDialog(false)}
         onClick={() => handleDelete(typesRef.current?.products_id)}
         title={"Are you sure"}
-        message={`Are you sure you want to delete this ${typesRef?.current?.type_name}?`}
+        message={`Are you sure you want to delete this ${typesRef?.current?.name}?`}
       />
     </Container>
   );
