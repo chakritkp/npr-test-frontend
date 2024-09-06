@@ -92,7 +92,13 @@ const ProductsForm: React.FC<ProductsFormProps> = () => {
     handleLoad();
   }, [reload]);
 
-  const onSave = (data: any) => {};
+  const onSave = async (data: any) => {
+    if (id) {
+      await Products.updateProduct(parseInt(id), data);
+    } else {
+      await Products.createProducts(data);
+    }
+  };
   return (
     <Container component={"main"} maxWidth="md">
       <FormProvider {...methods}>
@@ -128,6 +134,7 @@ const ProductsForm: React.FC<ProductsFormProps> = () => {
                         fullWidth
                         size="small"
                         label="Product name"
+                        disabled={id ? true : false}
                         error={!!errors.name}
                         helperText={errors.name ? errors.name.message : null}
                       />

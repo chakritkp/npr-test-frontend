@@ -28,8 +28,8 @@ const ProductsList: React.FC<ProductsListProps> = () => {
     setOpenDialog(true);
   };
 
-  const handleDelete = async (name: string) => {
-    await Products.deleteProducts(name);
+  const handleDelete = async (id: number) => {
+    await Products.deleteProducts(id);
     setOpenDialog(false);
     setReload(true);
   };
@@ -39,13 +39,6 @@ const ProductsList: React.FC<ProductsListProps> = () => {
   }, [reload]);
 
   const columns = [
-    {
-      id: "no",
-      name: "No",
-      align: "center",
-      alignItem: "center",
-      render: (_r: any, i: number) => i + 1,
-    },
     {
       id: "name",
       align: "center",
@@ -88,7 +81,12 @@ const ProductsList: React.FC<ProductsListProps> = () => {
       render: (r: any) => (
         <Box>
           <Stack spacing={1} display={"flex"} direction={"row"} width={50}>
-            <Button size="small" variant="text" color="primary" onClick={() => navigate(`/form/${r?.products_id}`)}>
+            <Button
+              size="small"
+              variant="text"
+              color="primary"
+              onClick={() => navigate(`/form/${r?.products_id}`)}
+            >
               <EditIcon />
             </Button>
             <Button
@@ -117,7 +115,7 @@ const ProductsList: React.FC<ProductsListProps> = () => {
       <DialogConfirm
         open={openDialog}
         onClose={() => setOpenDialog(false)}
-        onClick={() => handleDelete(typesRef.current?.name)}
+        onClick={() => handleDelete(typesRef.current?.products_id)}
         title={"Are you sure"}
         message={`Are you sure you want to delete this ${typesRef?.current?.type_name}?`}
       />
